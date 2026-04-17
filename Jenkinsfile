@@ -45,4 +45,3 @@ pipeline {
             echo 'Build Failed ❌'
         }
     }
-}
