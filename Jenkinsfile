@@ -1,47 +1,41 @@
 pipeline {
-    agent any
+   agent any
 
-    tools {
-        maven 'Maven3'
-    
-    }
+   tools {
+       maven 'Maven3'
+      
+   }
 
-    stages {
+   stages {
+       stage('Checkout') {
+           steps {
+               git branch: 'main', url: 'https://github.com/pujakohale/BDDCucumberProject.git'
+           }
+       }
 
-        stage('Checkout Code') {
-    steps {
-        git branch: 'main', url: 'https://github.com/pujakohale/BDDCucumberProject.git'
-    }
+       stage('Build') {
+           steps {
+               bat  'mvn clean compile'
+           }
+       }
+
+       stage('Test') {
+           steps {
+                 bat 'mvn test'
+           }
+       }
+
+       stage('Package') {
+           steps {
+                 bat 'mvn package'
+           }
+       }
+   }
+
+   post {
+       always {
+           junit '**/target/surefire-reports/*.xml'
+           archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+       }
+   }
 }
-        }
-
-        stage('Build') {
-            steps {
-                bat 'mvn clean compile'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-
-        stage('Generate Report') {
-            steps {
-                bat 'dir target'
-            }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'target/**/*.*', fingerprint: true
-        }
-        success {
-            echo 'Build Successful ✅'
-        }
-        failure {
-            echo 'Build Failed ❌'
-        }
-    }
